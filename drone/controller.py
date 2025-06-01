@@ -1,7 +1,7 @@
 import random
 import pybullet as p
 import math
-from drone import Drone
+from drone.drone import Drone
 
 class Controller:
     # constructor

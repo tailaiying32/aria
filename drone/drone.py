@@ -1,12 +1,12 @@
 import pybullet as p
-from controller import Controller
+from drone.controller import Controller
 
 class Drone:
     # constructor
-    def __init__(self, max_thrust : int, controller : Controller):
+    def __init__(self):
         self.drone_id = Drone.create_drone(self)
-        self.max_thrust = max_thrust
-        self.controller = Controller
+        self.max_thrust = 15
+        self.controller = Controller(self)
 
 
     # create and load point mass
