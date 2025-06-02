@@ -1,5 +1,6 @@
 import pybullet as p
 from drone.controller import Controller
+from drone.sensor import Sensor
 import numpy as np
 
 class Drone:
@@ -8,6 +9,7 @@ class Drone:
         self.drone_id = Drone.create_drone(self)
         self.max_thrust = 15
         self.controller = Controller(self)
+        self.sensor = Sensor(self)
 
     # create and load point mass
     def create_drone(self, position=[0, 0, 2], color=[1, 0, 0, 1]):
@@ -22,9 +24,6 @@ class Drone:
     
     # takes in the drone and returns its coordinate position and the forward direction relative to the drone
     def get_drone_position(self):
-        # forward vector is [1, 0, 0] (positive [x, y, z] corresponds to [forward, left, up])
-        forward_vector = np.array([1, 0, 0])
-
         # get drone's position and orientation as a pair tuple
         position, orientation = p.getBasePositionAndOrientation(self.drone_id)
 

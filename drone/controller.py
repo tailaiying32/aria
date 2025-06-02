@@ -1,11 +1,10 @@
 import random
 import pybullet as p
 import math
-from drone.drone import Drone
 
 class Controller:
     # constructor
-    def __init__(self, drone : Drone):
+    def __init__(self, drone):
         self.drone = drone
     
     # capability model - start with randomized values
@@ -16,12 +15,12 @@ class Controller:
             pitch: int = random.randint(-30, 30)
             roll: int = random.randint(-30, 30)
             yaw = random.randint(-30, 30)
-            thrust = random.randint(0, self.drone.max_thrust)
+            thrust = random.randint(8, self.drone.max_thrust)
         else: # if nothing detected, just go forward
             pitch = -10
             roll = 0
             yaw = 0
-            thrust = random.randint(0, self.drone.max_thrust)
+            thrust = 10
         return [pitch, roll, yaw, thrust]
 
 
