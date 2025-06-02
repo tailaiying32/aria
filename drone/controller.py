@@ -16,10 +16,10 @@ class Controller:
             roll: int = random.randint(-30, 30)
             yaw = random.randint(-30, 30)
             thrust = random.randint(8, self.drone.max_thrust)
-        else: # if nothing detected, just go forward
+        else: # if nothing detected, just move randomly
             pitch = -10
             roll = 0
-            yaw = 0
+            yaw = random.randint(-30, 30)
             thrust = 10
         return [pitch, roll, yaw, thrust]
 
@@ -32,16 +32,13 @@ class Controller:
         yaw : int = capability_model[2]
         thrust : int = capability_model[3]
 
-        def deg_to_rad(degrees : int):
-            return degrees * math.pi / 180
-
         # calculate local force components
-        fx_local = thrust * math.sin (deg_to_rad(pitch))
-        fy_local = -thrust * math.sin (deg_to_rad(roll))
-        fz = thrust * math.cos (deg_to_rad(pitch)) * math.cos (deg_to_rad(roll))
+        fx_local = thrust * math.sin (math.radians(pitch))
+        fy_local = -thrust * math.sin (math.radians(roll))
+        fz = thrust * math.cos (math.radians(pitch)) * math.cos (math.radians(roll))
 
         # apply yaw rotation to the (fx, fy) vector
-        yaw_rad = deg_to_rad(yaw)
+        yaw_rad = math.radians(yaw)
         fx = fx_local * math.cos(yaw_rad) - fy_local * math.sin(yaw_rad)
         fy = fx_local * math.sin(yaw_rad) + fy_local * math.cos(yaw_rad)
         

@@ -12,7 +12,7 @@ p.setGravity(0,0,-9.81)
 ground = p.loadURDF("plane.urdf")
 
 # create list of drones
-drones = []
+drones: list[Drone] = []
 
 for i in range(1, 10):
     drones.append(Drone())

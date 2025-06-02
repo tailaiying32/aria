@@ -2,17 +2,28 @@ import pybullet as p
 from drone.controller import Controller
 from drone.sensor import Sensor
 import numpy as np
+import random
 
 class Drone:
     # constructor
     def __init__(self):
-        self.drone_id = Drone.create_drone(self)
+        # define random drone position and color
+        env_size = 2
+        x = env_size * random.random()
+        y = env_size * random.random()
+        z = env_size * random.random()
+
+        r = random.random()
+        g = random.random()
+        b = random.random()
+
+        self.drone_id = Drone.create_drone(self, [x, y, z], [r, g, b, 1])
         self.max_thrust = 15
         self.controller = Controller(self)
         self.sensor = Sensor(self)
 
     # create and load point mass
-    def create_drone(self, position=[0, 0, 2], color=[1, 0, 0, 1]):
+    def create_drone(self, position, color):
         sphereRadius = 0.1
         colSphereId = p.createCollisionShape(p.GEOM_SPHERE, radius=sphereRadius)
         visualShapeId = p.createVisualShape(p.GEOM_SPHERE, radius=sphereRadius, rgbaColor=color)
