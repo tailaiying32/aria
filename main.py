@@ -15,6 +15,5 @@ drone = Drone()
 droneId = drone.create_drone()
 
 while True:
-    
     p.stepSimulation()
     time.sleep(1./240.)
