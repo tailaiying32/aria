@@ -19,7 +19,8 @@ for i in range(1, 10):
 
 while True:
     for drone in drones:
-        sensor_input = drone.sensor.detect([])
+        other_drones = [other for other in drones if other != drone]
+        sensor_input = drone.sensor.detect(other_drones)
         capability_model = drone.controller.capability_model(sensor_input)
         drone.controller.apply_force(capability_model)
 

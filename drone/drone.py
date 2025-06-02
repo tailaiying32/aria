@@ -18,7 +18,7 @@ class Drone:
         b = random.random()
 
         self.drone_id = Drone.create_drone(self, [x, y, z], [r, g, b, 1])
-        self.max_thrust = 15
+        self.max_thrust = 30
         self.controller = Controller(self)
         self.sensor = Sensor(self)
 

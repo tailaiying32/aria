@@ -12,15 +12,15 @@ class Controller:
     # returns set of [pitch, roll, yaw, thrust] values
     def capability_model(self, sensor_input : bool):
         if sensor_input is True:
-            pitch: int = random.randint(-30, 30)
-            roll: int = random.randint(-30, 30)
-            yaw = random.randint(-30, 30)
-            thrust = random.randint(8, self.drone.max_thrust)
+            pitch: int = random.randint(-90, 90)
+            roll: int = random.randint(-90, 90)
+            yaw = random.randint(-90, 90)
+            thrust = 25
         else: # if nothing detected, just move randomly
-            pitch = -10
-            roll = 0
-            yaw = random.randint(-30, 30)
-            thrust = 10
+            pitch: int = random.randint(-90, 90)
+            roll: int = random.randint(-90, 90)
+            yaw = random.randint(-90, 90)
+            thrust = 25
         return [pitch, roll, yaw, thrust]
 
 

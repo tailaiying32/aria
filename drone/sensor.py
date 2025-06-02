@@ -52,7 +52,7 @@ class Sensor:
     # takes in list of other drones and returns whether or not the sensor is activated
     def detect(self, drone_list):
         for drone in drone_list:
-            if self.is_in_fov(drone) is True:
+            if self.is_in_fov(drone.get_drone_position()[0]) is True:
                 return True
         
         return False
