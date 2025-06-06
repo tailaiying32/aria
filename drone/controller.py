@@ -1,61 +1,63 @@
 import random
 import pybullet as p
 import math
-# from drone.drone import Drone
+import numpy as np
 
 class Controller:
     # constructor
     def __init__(self, drone):
         self.drone = drone
+        self.dt = 240./240.
     
     # capability model - start with randomized values
-    # takes in self and a binary sensor_input
     def capability_model(self, sensor_input : bool):
+        # roll, pitch, yaw = p.getEulerFromQuaternion(p.getBasePositionAndOrientation(self.drone.drone_id)[1])
         if sensor_input is True:
-            roll_rate = 0 
-            pitch_rate = 0
-            yaw_rate = 0.05
-            thrust = 10
+            droll = -5 * self.dt
+            dpitch = 5 * self.dt
+            dyaw = 5 * self.dt
+            speed = 2
         else:
-            roll_rate = 0 
-            pitch_rate = 0
-            yaw_rate = -0.05
-            thrust = 10
-        return [roll_rate, pitch_rate, yaw_rate, thrust]
+            droll = 5 * self.dt
+            dpitch = -5 * self.dt
+            dyaw = -5 * self.dt
+            speed = 5
+        return [droll, dpitch, dyaw, speed]
 
-    # applies velocity to drone - idealized dynamics
-    def apply_rotation_thrust(self, capability_model):
+    # applies velocity and rotation to drone
+    def apply_capability_model(self, capability_model):
         drone = self.drone
-        roll, pitch, yaw = drone.euler_orientation
-        roll_rate, pitch_rate, yaw_rate, thrust = capability_model
-        drone.euler_orientation = [roll + roll_rate, pitch + pitch_rate, yaw + yaw_rate]
-        drone.thrust = thrust
-        orientation = p.getQuaternionFromEuler(drone.euler_orientation)
+        drone_id = drone.drone_id
 
-        # adjust orientation based
-        p.resetBasePositionAndOrientation(drone.drone_id, drone.position, orientation)
+        droll, dpitch, dyaw, speed = capability_model
 
+        # Set angular velocity as before
+        linear_vel, _ = p.getBaseVelocity(drone_id)
+        p.resetBaseVelocity(drone_id, linear_vel, [droll, dpitch, dyaw])
 
-    # applies force to drone
-    # takes in self and applies force to drone
-    def apply_force(self):
-        drone = self.drone
-        roll, pitch, yaw = self.drone.euler_orientation
-        thrust = drone.thrust
+        # Get current orientation
+        rot_matrix = drone.get_drone_position()[1]  # 3x3 rotation matrix
+        new_speed = np.matmul(rot_matrix, np.array([speed, 0, 0]))  # local x-axis
 
-        # calculate local force components
-        fx_local = thrust * math.sin(pitch)
-        fy_local = -thrust * math.sin(roll)
-        fz = thrust * math.cos(pitch) * math.cos(roll)
+        # p.applyExternalForce(drone_id, -1, new_thrust.tolist(), [0, 0, 0], p.WORLD_FRAME)
+        p.resetBaseVelocity(drone_id, new_speed.tolist(), [droll, dpitch, dyaw])
 
-        # apply yaw rotation to the (fx, fy) vector
-        fx = fx_local * math.cos(yaw) - fy_local * math.sin(yaw)
-        fy = fx_local * math.sin(yaw) + fy_local * math.cos(yaw)
-        
-        p.applyExternalForce(self.drone.drone_id, -1, [fx, fy, fz], [0, 0, 0], p.WORLD_FRAME)
 
         
+        # Calculate forces based on current orientation
+        # position, orientation = p.getBasePositionAndOrientation(drone_id)
+        # roll, pitch, yaw = p.getEulerFromQuaternion(orientation)
         
+        # # Calculate local force components
+        # fx_local = thrust * math.sin(pitch)
+        # fy_local = -thrust * math.sin(roll) 
+        # fz = thrust * math.cos(pitch) * math.cos(roll) + 10  # +10 to fight gravity
+        
+        # # Apply yaw rotation to the (fx, fy) vector
+        # fx = fx_local * math.cos(yaw) - fy_local * math.sin(yaw)
+        # fy = fx_local * math.sin(yaw) + fy_local * math.cos(yaw)
+        
+        # p.applyExternalForce(drone_id, -1, [fx, fy, fz], [0, 0, 0], p.WORLD_FRAME)
 
 
-            
+

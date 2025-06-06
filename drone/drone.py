@@ -12,20 +12,20 @@ class Drone:
         env_size = 2
         x, y, z = [env_size * random.uniform(-1, 1) for _ in range(3)]
         r, g, b = [random.random() for _ in range(3)]
-        roll, pitch, yaw = [random.uniform(0, 2 * math.pi) for _ in range(3)]
+        # roll, pitch, yaw = [random.uniform(0, 2 * math.pi) for _ in range(3)]
+        roll, pitch, yaw = [0, 0, 0]
         orientation = p.getQuaternionFromEuler([roll, pitch, yaw])
 
         self.drone_id = Drone.create_drone(self, [x, y, z], [r, g, b, 1])
 
         self.max_thrust = 30
-        self.thrust = 0
+        # self.thrust = 0
         self.controller = Controller(self)
         self.sensor = Sensor(self)
-        self.position = [x, y, 2]
-        self.euler_orientation = [roll, pitch, yaw]
-        self.quaternion_orientation = orientation
+        # self.position = [x, y, 2]
+        # self.orientation = [roll, pitch, yaw]
 
-        p.resetBasePositionAndOrientation(self.drone_id, [x, y, z], orientation)
+        p.resetBasePositionAndOrientation(self.drone_id, [x, y, 2], orientation)
 
     # create and load point mass
     def create_drone(self, position, color):
@@ -35,7 +35,7 @@ class Drone:
         
         mass = 1.0
         # droneId = p.createMultiBody(mass, colSphereId, visualShapeId, position)
-        droneId = p.loadURDF("models/sphere.urdf", position, [0, 0, 0, 0])
+        droneId = p.loadURDF("models/eyeball.urdf", position, [0, 0, 0, 1])
         return droneId
 
     

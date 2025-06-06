@@ -7,7 +7,7 @@ import pybullet as p
 class Sensor:
     # constructor
     # holds the drone this sensor is attached to, the fov, and whether to display debuggging lines
-    def __init__(self, drone, fov = 180.0, debug_lines = False):
+    def __init__(self, drone, fov = 90.0, debug_lines = False):
         self.drone = drone
         self.fov: float = fov
         self.half_fov = fov / 2
