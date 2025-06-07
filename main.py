@@ -25,7 +25,7 @@ p.resetDebugVisualizerCamera(
 # create list of drones
 drones: list[Drone] = []
 
-for i in range(0, 10):
+for i in range(0, 30):
     drones.append(Drone())
 
 while True:
@@ -35,6 +35,7 @@ while True:
         sensor_input = drone.sensor.detect(other_drones)
         capability_model = drone.controller.capability_model(sensor_input)
         drone.controller.apply_capability_model(capability_model)
+        # drone.controller.apply_force(capability_model)
 
     p.stepSimulation()
     time.sleep(1./240.)

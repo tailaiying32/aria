@@ -12,8 +12,8 @@ class Drone:
         env_size = 2
         x, y, z = [env_size * random.uniform(-1, 1) for _ in range(3)]
         r, g, b = [random.random() for _ in range(3)]
-        # roll, pitch, yaw = [random.uniform(0, 2 * math.pi) for _ in range(3)]
-        roll, pitch, yaw = [0, 0, 0]
+        roll, pitch, yaw = [random.uniform(0, 2 * math.pi) for _ in range(3)]
+        # roll, pitch, yaw = [0, 0, 0]
         orientation = p.getQuaternionFromEuler([roll, pitch, yaw])
 
         self.drone_id = Drone.create_drone(self, [x, y, z], [r, g, b, 1])
