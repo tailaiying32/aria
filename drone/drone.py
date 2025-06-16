@@ -4,6 +4,7 @@ from drone.sensor import Sensor
 import numpy as np
 import random
 import math
+from drone.controller import SensorPosition
 
 class Drone:
     # constructor
@@ -21,7 +22,7 @@ class Drone:
         self.max_thrust = 30
         # self.thrust = 0
         self.controller = Controller(self)
-        self.sensor = Sensor(self)
+        self.sensors = [Sensor(self, 60.0, False, SensorPosition.FRONT), Sensor(self, 60.0, False, SensorPosition.TOP)]
         # self.position = [x, y, 2]
         # self.orientation = [roll, pitch, yaw]
 

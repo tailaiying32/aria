@@ -32,7 +32,9 @@ while True:
     for drone in drones:
         p.changeDynamics(drone.drone_id, -1, linearDamping=0.0, angularDamping=0.0)
         other_drones = [other for other in drones if other != drone]
-        sensor_input = drone.sensor.detect(other_drones)
+        sensor_input = []
+        for sensor in drone.sensors:
+            sensor_input.append(sensor.detect(other_drones))
         capability_model = drone.controller.capability_model(sensor_input)
         drone.controller.apply_capability_model(capability_model)
         # drone.controller.apply_force(capability_model)
