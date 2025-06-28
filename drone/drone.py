@@ -23,7 +23,7 @@ class Drone:
         # self.thrust = 0
         self.controller = Controller(self)
         self.sensors = [Sensor(self, 60.0, False, SensorPosition.FRONT), Sensor(self, 60.0, False, SensorPosition.TOP)]
-        # self.position = [x, y, 2]
+        self.position = [x, y, z]
         # self.orientation = [roll, pitch, yaw]
 
         p.resetBasePositionAndOrientation(self.drone_id, [x, y, 2], orientation)

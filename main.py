@@ -5,7 +5,8 @@ from drone.drone import Drone
 from drone.controller import Controller
 
 # connect to physics server
-physicsClient = p.connect(p.GUI)
+# physicsClient = p.connect(p.GUI)
+physicsClient = p.connect(p.DIRECT)
 p.configureDebugVisualizer(p.COV_ENABLE_GUI, 1)
 p.configureDebugVisualizer(p.COV_ENABLE_MOUSE_PICKING, 1)
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -24,11 +25,13 @@ p.resetDebugVisualizerCamera(
 
 # create list of drones
 drones: list[Drone] = []
+positions = []
+time_passed = 0
 
-for i in range(0, 30):
+for i in range(0, 2):
     drones.append(Drone())
 
-while True:
+for _ in range(1000):
     for drone in drones:
         p.changeDynamics(drone.drone_id, -1, linearDamping=0.0, angularDamping=0.0)
         other_drones = [other for other in drones if other != drone]
@@ -37,7 +40,16 @@ while True:
             sensor_input.append(sensor.detect(other_drones))
         capability_model = drone.controller.capability_model(sensor_input)
         drone.controller.apply_capability_model(capability_model)
-        # drone.controller.apply_force(capability_model)
+
 
     p.stepSimulation()
     time.sleep(1./240.)
+    time_passed += 1
+
+for drone in drones:
+    positions.append(drone.position)
+
+print("\n")
+print("positions of drones after " + str(time_passed) + " time steps")
+print(positions)
+print("\n")

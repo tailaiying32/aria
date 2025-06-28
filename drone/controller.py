@@ -40,15 +40,15 @@ class Controller:
             vz = 0
         elif sensor_input == [1, 0]:
             dyaw = -3
-            vx = -3
-            vz = -0
+            vx = 3
+            vz = 3
         elif sensor_input == [0, 1]:
             dyaw = 3
             vx = 3
             vz = -0
         elif sensor_input == [1, 1]:
             dyaw = -3
-            vx = -0
+            vx = 3
             vz = 3
         else: 
             dyaw = 0
@@ -85,6 +85,8 @@ class Controller:
         new_speed = np.matmul(rot_matrix, np.array([vx, 0, vz]))  # the local velocity
 
         p.resetBaseVelocity(drone_id, new_speed.tolist(), [0, 0, dyaw])
+        new_position = drone.get_drone_position()[0]
+        drone.position = new_position
 
 
     def apply_force(self, capability_model):
