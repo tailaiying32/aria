@@ -47,7 +47,6 @@ for i in range(0, num_drones):
 # open csv before loop
 with open("drone_positions.csv", "w", newline="") as csvfile:
     writer = csv.writer(csvfile)
-    writer.writerow(["Controller model: " + " ".join(str(x) for x in drones[0].controller.model)])
     writer.writerow(["time_step", "drone_id", "x", "y", "z"])
 
     for step in range(sim_length + 1): # add 1 to make sure last time step position is recorded
@@ -67,7 +66,7 @@ with open("drone_positions.csv", "w", newline="") as csvfile:
         if step >= (sim_length - log_length) and step % 120 == 0:
             for drone in drones:
                 pos = drone.get_drone_position()[0]
-                writer.writerow([step / 240., drone.drone_id] + list(pos))
+                writer.writerow([step / 240., drone.drone_id] + list(pos) + [str(drone.controller.model)])
 
 print("\n")
 print("Positions saved to drone_positions.csv\n")
