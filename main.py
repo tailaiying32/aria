@@ -7,7 +7,7 @@ from drone.drone import Drone
 from drone.controller import Controller
 import sys
 
-if len(sys.argv) < 2:
+if len(sys.argv) < 4:
     print("\nPlease run python main.py <num_drones> <sim_length> <log_length>, where sim_length >= log_length\n")
     sys.exit()
 
@@ -16,7 +16,8 @@ sim_length = int(sys.argv[2]) * 240
 log_length = int(sys.argv[3]) * 240
 
 if sim_length < log_length:
-    print("\nPlease ensure sim_length is greater than log_length")
+    print("\nPlease ensure sim_length is greater than log_length\n")
+    sys.exit()
 
 
 # connect to physics server
