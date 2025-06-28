@@ -1,11 +1,10 @@
 import csv
-import pprint
 import pybullet as p
 import time
 import pybullet_data
 from drone.drone import Drone
-from drone.controller import Controller
 import sys
+import ast
 
 if len(sys.argv) < 4:
     print("\nPlease run python main.py <num_drones> <sim_length> <log_length>, where sim_length >= log_length\n")
@@ -21,8 +20,7 @@ if sim_length < log_length:
 
 
 # connect to physics server
-# physicsClient = p.connect(p.GUI)
-physicsClient = p.connect(p.DIRECT)
+physicsClient = p.connect(p.DIRECT) # change to p.GUI if you want to render the GUI and watch the drones
 p.configureDebugVisualizer(p.COV_ENABLE_GUI, 1)
 p.configureDebugVisualizer(p.COV_ENABLE_MOUSE_PICKING, 1)
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
