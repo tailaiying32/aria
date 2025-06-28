@@ -50,7 +50,8 @@ for _ in range(1000):
 
 for drone in drones:
     positions[drone.drone_id]= drone.position
-
+    
+print("\n")
 print("\npositions of drones after", time_steps, "time steps")
 pprint.pprint(positions)  # Pretty print to terminal
 
