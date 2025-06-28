@@ -1,3 +1,5 @@
+import csv
+import pprint
 import pybullet as p
 import time
 import pybullet_data
@@ -25,8 +27,8 @@ p.resetDebugVisualizerCamera(
 
 # create list of drones
 drones: list[Drone] = []
-positions = []
-time_passed = 0
+positions = {}
+time_steps = 0
 
 for i in range(0, 2):
     drones.append(Drone())
@@ -44,12 +46,20 @@ for _ in range(1000):
 
     p.stepSimulation()
     time.sleep(1./240.)
-    time_passed += 1
+    time_steps += 1
 
 for drone in drones:
-    positions.append(drone.position)
+    positions[drone.drone_id]= drone.position
 
-print("\n")
-print("positions of drones after " + str(time_passed) + " time steps")
-print(positions)
-print("\n")
+print("\npositions of drones after", time_steps, "time steps")
+pprint.pprint(positions)  # Pretty print to terminal
+
+# Save to CSV
+with open("drone_positions.csv", "w", newline="") as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(["Controller model: " + " ".join(str(x) for x in drones[0].controller.model)])
+    writer.writerow(["drone_id", "x", "y", "z"])
+    for drone_id, pos in positions.items():
+        writer.writerow([drone_id] + list(pos))
+
+print("Positions saved to drone_positions.csv\n")

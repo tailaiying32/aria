@@ -17,6 +17,7 @@ class Controller:
     def __init__(self, drone):
         self.drone = drone
         self.dt = 240./240.
+        self.model = [3, 3, 0, -3, 3, 3, 3, 3, -0, -3, 3, 3]
     
     # capability model - start with randomized values
     def capability_model(self, sensor_input):
@@ -35,21 +36,21 @@ class Controller:
 
         # controller model based on two sensor states and yaw, forward velocity, and vertical velocity
         if sensor_input == [0, 0]:
-            dyaw = 3
-            vx = 3
-            vz = 0
+            dyaw = self.model[0]
+            vx = self.model[1]
+            vz = self.model[2]
         elif sensor_input == [1, 0]:
-            dyaw = -3
-            vx = 3
-            vz = 3
+            dyaw = self.model[3]
+            vx = self.model[4]
+            vz = self.model[5]
         elif sensor_input == [0, 1]:
-            dyaw = 3
-            vx = 3
-            vz = -0
+            dyaw = self.model[6]
+            vx = self.model[7]
+            vz = self.model[8]
         elif sensor_input == [1, 1]:
-            dyaw = -3
-            vx = 3
-            vz = 3
+            dyaw = self.model[9]
+            vx = self.model[10]
+            vz = self.model[11]
         else: 
             dyaw = 0
             vx = 0
