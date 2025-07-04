@@ -52,6 +52,10 @@ class Sensor:
         magnitude_forward = np.linalg.norm(relative_forward)
         magnitude_target = np.linalg.norm(relative_target_vector)
 
+        # check to make sure that drone is within range of the sensor
+        if magnitude_target > 2:
+            return False
+
         dot_product = np.dot(relative_forward, relative_target_vector)
         theta = math.acos(dot_product / (magnitude_forward * magnitude_target))
 
