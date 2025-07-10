@@ -18,6 +18,8 @@ class Controller:
         self.drone = drone
         self.dt = 240./240.
         self.model = [3, 3, 0, -3, 3, 3, 3, 3, -0, -3, 3, 3]
+        self.model = [random.uniform(-2, 2) for _ in range(12)]
+        print("Controller model initialized with random values:", self.model)
     
     # capability model - start with randomized values
     def capability_model(self, sensor_input):

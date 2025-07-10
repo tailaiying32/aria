@@ -14,7 +14,7 @@ class Drone:
         x, y, z = [env_size * random.uniform(-1, 1) for _ in range(3)]
         r, g, b = [random.random() for _ in range(3)]
         roll, pitch, yaw = [random.uniform(0, 2 * math.pi) for _ in range(3)]
-        # roll, pitch, yaw = [0, 0, 0]
+        roll, pitch, yaw = [0, 0, 0]
         orientation = p.getQuaternionFromEuler([roll, pitch, yaw])
 
         self.drone_id = Drone.create_drone(self, [x, y, z], [r, g, b, 1])
@@ -36,7 +36,7 @@ class Drone:
         
         mass = 1.0
         # droneId = p.createMultiBody(mass, colSphereId, visualShapeId, position)
-        droneId = p.loadURDF("models/eyeball.urdf", position, [0, 0, 0, 1])
+        droneId = p.loadURDF("3DBD/src/aria/models/eyeball.urdf", position, [0, 0, 0, 1])
         return droneId
 
     
@@ -44,6 +44,8 @@ class Drone:
     def get_drone_position(self):
         # get drone's position and orientation as a pair tuple
         position, orientation = p.getBasePositionAndOrientation(self.drone_id)
+
+        velocity, angular_velocity = p.getBaseVelocity(self.drone_id)
 
         # 3 by 3 rotation matrix representing the drone's orientation
         rotation_matrix = np.array(p.getMatrixFromQuaternion(orientation)).reshape(3, 3)

@@ -6,6 +6,46 @@ from drone.drone import Drone
 import sys
 import ast
 
+import numpy as np
+KP= 10.0  # Proportional gain for upright control
+KD= 1.0   # Derivative gain for upright control
+def apply_upright_control(drone_id):
+    # Get current state
+    _, orn = p.getBasePositionAndOrientation(drone_id)
+    _, _, yaw = p.getEulerFromQuaternion(orn)
+    _, ang_vel = p.getBaseVelocity(drone_id)
+
+    # Desired orientation (zero roll/pitch, keep yaw)
+    desired_euler = [0.0, 0.0, yaw]
+    desired_quat = p.getQuaternionFromEuler(desired_euler)
+
+    # Orientation error quaternion: q_err = q_desired * q_current_conj
+    q1 = desired_quat
+    q2 = orn
+    error_quat = p.getDifferenceQuaternion(q1, q2)
+    # if error_quat[0] != 0:
+        # print(f"Error quaternion: {error_quat}, {drone_id}")
+
+    # Clamp scalar part to avoid invalid arccos
+    w = np.clip(error_quat[3], -1.0, 1.0)
+    angle = 2 * np.arccos(w)
+
+    # Avoid division by zero when angle is small
+    sin_half_angle_sq = max(1e-8, 1.0 - w ** 2)
+    sin_half_angle = np.sqrt(sin_half_angle_sq)
+
+    # Axis of rotation (normalized)
+    if sin_half_angle > 1e-5:
+        axis = np.array(error_quat[:3]) / sin_half_angle
+    else:
+        axis = np.zeros(3)
+
+    # PD torque = -KP * angle * axis - KD * angular_velocity
+    torque = -KP * angle * axis - KD * np.array(ang_vel)
+    
+
+    # Apply torque in world frame
+    p.applyExternalTorque(drone_id, -1, torque.tolist(), p.WORLD_FRAME)
 class Main:
     def __init__(self, num_drones = 8, sim_length = 20, log_length = 10, render_GUI = False, env_size = 5):
         # simulation parameters
@@ -70,7 +110,19 @@ class Main:
                     # check if drones are out of bounds
                     x, y, z = drone.get_drone_position()[0]
                     if abs(x) >= self.env_size or abs(y) >= self.env_size or abs(z) >= self.env_size:
+                        # print(f"Drone {drone.drone_id} out of bounds at step {step}: ({x}, {y}, {z})")
+                        # p.resetBasePositionAndOrientation(drone.drone_id, [0, 0, 2], [0, 0, 0, 1])
                         self.out_of_bounds = True
+                    
+                    apply_upright_control(drone.drone_id)
+                    
+                    # check if roll and pitch are non-zero
+
+                    roll, pitch, yaw = p.getEulerFromQuaternion(p.getBasePositionAndOrientation(drone.drone_id)[1])
+                    if abs(roll) > 0.1 or abs(pitch) > 0.1:
+                        print(f"Drone {drone.drone_id} has non-zero roll/pitch at step {step}: roll={roll}, pitch={pitch}")
+                    
+
 
                 if self.out_of_bounds:
                     print("\nDrone out of bounds!")
@@ -96,7 +148,7 @@ if __name__ == "__main__":
     sim_length = int(sys.argv[2]) * 240
     log_length = int(sys.argv[3]) * 240
     render_GUI = True 
-    env_size = 5
+    env_size = 10
 
     main_instance = Main(num_drones, sim_length, log_length, render_GUI, env_size)
     main_instance.main()

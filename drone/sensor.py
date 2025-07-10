@@ -53,7 +53,7 @@ class Sensor:
         magnitude_target = np.linalg.norm(relative_target_vector)
 
         # check to make sure that drone is within range of the sensor
-        if magnitude_target > 2:
+        if magnitude_target < 2:
             return False
 
         dot_product = np.dot(relative_forward, relative_target_vector)
