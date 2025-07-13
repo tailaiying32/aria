@@ -4,30 +4,22 @@ import time
 import pybullet_data
 from drone.drone import Drone
 import sys
-import ast
+import random
 
 class Main:
-    def __init__(self, num_drones = 8, sim_length = 20, log_length = 10, render_GUI = False, env_size = 5):
+    def __init__(self, num_drones = 8, sim_length = 20, log_length = 10, render_GUI = False, env_size = 5.):
         # simulation parameters
         self.num_drones = num_drones
         self.sim_length = sim_length
         self.log_length = log_length
         self.render_GUI = render_GUI
         self.env_size = env_size
+        self.sim_speed = sim_speed
 
         # out of bounds flag
         self.out_of_bounds = False 
 
     def main(self):
-        if len(sys.argv) < 4:
-            print("\nPlease run python main.py <num_drones> <sim_length> <log_length>, where sim_length >= log_length\n")
-            sys.exit()
-
-        if self.sim_length < self.log_length:
-            print("\nPlease ensure sim_length is greater than log_length\n")
-            sys.exit()
-
-
         # connect to physics server
         physicsClient = p.connect(p.GUI) if self.render_GUI else p.connect(p.DIRECT) 
         p.configureDebugVisualizer(p.COV_ENABLE_GUI, 1)
@@ -50,7 +42,7 @@ class Main:
         drones: list[Drone] = []
 
         for _ in range(0, self.num_drones):
-            drones.append(Drone())
+            drones.append(Drone([self.env_size * random.uniform(-1, 1) for _ in range(3)]))
 
         # open csv before loop
         with open("drone_positions.csv", "w", newline="") as csvfile:
@@ -65,17 +57,24 @@ class Main:
                     for sensor in drone.sensors:
                         sensor_input.append(sensor.detect(other_drones))
                     capability_model = drone.controller.capability_model(sensor_input)
+
+                    px, py, pz = drone.get_drone_position()[0]
                     drone.controller.apply_capability_model(capability_model)
                     
-                    # check if drones are out of bounds
                     x, y, z = drone.get_drone_position()[0]
-                    if abs(x) >= self.env_size or abs(y) >= self.env_size or abs(z) >= self.env_size:
-                        self.out_of_bounds = True
-
-                if self.out_of_bounds:
-                    print("\nDrone out of bounds!")
-                    break
-
+                    
+                    if abs(x) >= self.env_size:
+                        drone.controller.collision("x")
+                    if abs(y) >= self.env_size:
+                        drone.controller.collision("y")
+                    if abs(z) >= self.env_size:
+                        drone.controller.collision("z")
+                    
+                    # self.out_of_bounds = True
+                    
+                # if self.out_of_bounds:
+                #     print("\nDrone out of bounds!")
+                #     break
 
                 # write positions for each drone for the last [log_length] seconds
                 if step >= (self.sim_length - self.log_length) and step % 120 == 0:
@@ -86,17 +85,28 @@ class Main:
                 p.stepSimulation()
 
                 if self.render_GUI:
-                    time.sleep(1./240.)
+                    time.sleep(1./(240. * self.sim_speed))
 
         print("\n")
         print("Positions saved to drone_positions.csv\n")
 
 if __name__ == "__main__":
+    
+    if len(sys.argv) < 5:
+            print("\nPlease run python main.py <num_drones> <sim_length> <log_length> <sim_speed>, where sim_length >= log_length\n")
+            sys.exit()
+
     num_drones = int(sys.argv[1])
     sim_length = int(sys.argv[2]) * 240
     log_length = int(sys.argv[3]) * 240
+    sim_speed = float(sys.argv[4]) 
     render_GUI = True 
-    env_size = 5
+    env_size = 1
+
+    if sim_length < log_length:
+        print("\nPlease ensure sim_length is greater than log_length\n")
+        sys.exit()
+
 
     main_instance = Main(num_drones, sim_length, log_length, render_GUI, env_size)
     main_instance.main()

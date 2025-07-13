@@ -105,3 +105,15 @@ class Controller:
 
         # p.applyExternalForce(drone_id, -1, new_thrust.tolist(), [0, 0, 0], p.WORLD_FRAME)
         p.applyExternalForce(drone_id, -1, new_thrust.tolist(), [0, 0, 0], p.WORLD_FRAME)
+
+    # simulates bouncing off a boundary based on axis of collision
+    def collision(self, axis):
+        lin_vel, ang_vel = p.getBaseVelocity(self.drone.drone_id)
+        vx, vy, vz = lin_vel
+        match axis:
+            case "x":
+                p.resetBaseVelocity(self.drone.drone_id, [-vx, vy, vz], ang_vel)
+            case "y":
+                p.resetBaseVelocity(self.drone.drone_id, [vx, -vy, vz], ang_vel)
+            case "z":
+                p.resetBaseVelocity(self.drone.drone_id, [vx, vy, -vz], ang_vel)

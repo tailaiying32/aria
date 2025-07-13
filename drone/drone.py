@@ -8,10 +8,9 @@ from drone.controller import SensorPosition
 
 class Drone:
     # constructor
-    def __init__(self):
+    def __init__(self, pos):
         """ generate random values for position, color, and orientation """
-        env_size = 2
-        x, y, z = [env_size * random.uniform(-1, 1) for _ in range(3)]
+        x, y, z = pos
         r, g, b = [random.random() for _ in range(3)]
         roll, pitch, yaw = [random.uniform(0, 2 * math.pi) for _ in range(3)]
         # roll, pitch, yaw = [0, 0, 0]
@@ -24,6 +23,7 @@ class Drone:
         self.controller = Controller(self)
         self.sensors = [Sensor(self, 60.0, False, SensorPosition.FRONT), Sensor(self, 60.0, False, SensorPosition.TOP)]
         self.position = [x, y, z]
+        self.collided = False
         # self.orientation = [roll, pitch, yaw]
 
         p.resetBasePositionAndOrientation(self.drone_id, [x, y, 2], orientation)
@@ -49,4 +49,6 @@ class Drone:
         rotation_matrix = np.array(p.getMatrixFromQuaternion(orientation)).reshape(3, 3)
 
         return (position, rotation_matrix)
+
+
 
