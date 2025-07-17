@@ -17,25 +17,19 @@ class Main:
         self.sim_speed = sim_speed
 
     def main(self):
-        # connect to physics server
+        # connect to physics server, set up environment and camera
         physicsClient = p.connect(p.GUI) if self.render_GUI else p.connect(p.DIRECT) 
         p.configureDebugVisualizer(p.COV_ENABLE_GUI, 1)
         p.configureDebugVisualizer(p.COV_ENABLE_MOUSE_PICKING, 1)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.setGravity(0,0,0)
-
         self.create_walls()
-
-        # Set up camera for better initial view
         p.resetDebugVisualizerCamera(
             cameraDistance=8.0,
             cameraYaw=45,
             cameraPitch=-30,
             cameraTargetPosition=[0, 0, 2]
         )
-
-        # create ground
-        # ground = p.loadURDF("plane.urdf")
 
         # create list of drones
         drones: list[Drone] = []
@@ -56,19 +50,7 @@ class Main:
                     for sensor in drone.sensors:
                         sensor_input.append(sensor.detect(other_drones))
                     capability_model = drone.controller.capability_model(sensor_input)
-
-                    # px, py, pz = drone.get_drone_position()[0]
                     drone.controller.apply_capability_model(capability_model)
-                    
-                    # x, y, z = drone.get_drone_position()[0]
-                    
-                    # if abs(x) >= self.env_size and abs(px) < self.env_size:
-                    #     print(f"X collision detected! Position: {x}, env_size: {self.env_size}")
-                    #     drone.controller.collision("x")
-                    # if abs(y) >= self.env_size and abs(py) < self.env_size:
-                    #     drone.controller.collision("y")
-                    # if abs(z) >= self.env_size and abs(pz) < self.env_size:
-                    #     drone.controller.collision("z")
 
                 self.check_collision(drones)
 
@@ -126,7 +108,6 @@ class Main:
                             baseCollisionShapeIndex=wall["shape"],
                             baseVisualShapeIndex=wall["visual"],
                             basePosition=wall["pos"])
-            
                      
     def check_collision(self, drones):
         for drone in drones:
