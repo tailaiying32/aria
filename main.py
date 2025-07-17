@@ -16,9 +16,6 @@ class Main:
         self.env_size = env_size
         self.sim_speed = sim_speed
 
-        # out of bounds flag
-        self.out_of_bounds = False 
-
     def main(self):
         # connect to physics server
         physicsClient = p.connect(p.GUI) if self.render_GUI else p.connect(p.DIRECT) 
@@ -73,11 +70,13 @@ class Main:
                     # if abs(z) >= self.env_size and abs(pz) < self.env_size:
                     #     drone.controller.collision("z")
 
+                self.check_collision(drones)
+
                 # write positions for each drone for the last [log_length] seconds
                 if step >= (self.sim_length - self.log_length) and step % 120 == 0:
                     for drone in drones:
                         pos = drone.get_drone_position()[0]
-                        writer.writerow([step / 240., drone.drone_id] + list(pos) + [str(drone.controller.model)] + [self.out_of_bounds])
+                        writer.writerow([step / 240., drone.drone_id] + list(pos) + [str(drone.controller.model)] + [drone.out_of_bounds])
 
                 p.stepSimulation()
 
@@ -129,6 +128,12 @@ class Main:
                             basePosition=wall["pos"])
             
                      
+    def check_collision(self, drones):
+        for drone in drones:
+            contact_points = p.getContactPoints(bodyA=drone.drone_id)
+            if contact_points:
+                drone.out_of_bounds = True
+
 if __name__ == "__main__":
     if len(sys.argv) < 6:
             print("\nPlease run python main.py <num_drones> <sim_length> <log_length> <sim_speed> <render_GUI (True/False)>, where sim_length >= log_length\n")

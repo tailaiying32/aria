@@ -24,6 +24,7 @@ class Drone:
         self.sensors = [Sensor(self, 60.0, False, SensorPosition.FRONT), Sensor(self, 60.0, False, SensorPosition.TOP)]
         self.position = [x, y, z]
         self.collided = False
+        self.out_of_bounds = False
         # self.orientation = [roll, pitch, yaw]
 
         p.resetBasePositionAndOrientation(self.drone_id, [x, y, 2], orientation)
