@@ -14,12 +14,16 @@ class SensorPosition(Enum):
 
 class Controller:
     # constructor
-    def __init__(self, drone):
+    def __init__(self, drone, model=None):
         self.drone = drone
         self.dt = 240./240.
-        self.model = [3, 3, 0, -3, 3, 3, 3, 3, -0, -3, 3, 3]
-        self.model = [random.uniform(-2, 2) for _ in range(12)]
-        print("Controller model initialized with random values:", self.model)
+        self.model = [3, 2, 0, -3, 2, 0, 3, 2, 0, -3, 2, 0]
+        if model is not None:
+            self.model = model
+
+        # self.model = [random.randint(-6, 6) if i % 3 == 0 else random.randint(-4, 4) for i in range(12)]
+
+        # print("Controller model initialized with random values:", self.model)
     
     # capability model - start with randomized values
     def capability_model(self, sensor_input):

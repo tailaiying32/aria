@@ -5,25 +5,41 @@ import numpy as np
 import random
 import math
 from drone.controller import SensorPosition
+def generate_grid_positions(num_drones, env_size):
+    # Compute smallest cube grid that fits all drones
+    num_per_axis = int(np.ceil(num_drones ** (1/3)))  # cube root rounded up
+    grid = np.linspace(-env_size, env_size, num_per_axis)
+    
+    # Create full grid and truncate to the number of drones needed
+    all_positions = np.array(np.meshgrid(grid, grid, grid)).T.reshape(-1, 3)
+    # np.random.shuffle(all_positions)  # optional: randomize order
 
+    return all_positions[:num_drones]
 class Drone:
     # constructor
-    def __init__(self):
+    def __init__(self,index,num_drones,model):
         """ generate random values for position, color, and orientation """
-        env_size = 2
-        x, y, z = [env_size * random.uniform(-1, 1) for _ in range(3)]
+        env_size = 1.5
+        # create postions that are defined within the environment size equally spaced in all three dimensions
+        # Generate a grid of equally spaced positions within the environment
+        
+
+# Generate 3D grid of positions within the environment bounds
+        grid = generate_grid_positions(num_drones=num_drones, env_size=env_size)
+        x, y, z = grid[index]  # use the last position in the grid for this drone
         r, g, b = [random.random() for _ in range(3)]
         roll, pitch, yaw = [random.uniform(0, 2 * math.pi) for _ in range(3)]
-        roll, pitch, yaw = [0, 0, 0]
+        roll, pitch = [0, 0]
         orientation = p.getQuaternionFromEuler([roll, pitch, yaw])
 
         self.drone_id = Drone.create_drone(self, [x, y, z], [r, g, b, 1])
 
         self.max_thrust = 30
         # self.thrust = 0
-        self.controller = Controller(self)
-        self.sensors = [Sensor(self, 60.0, False, SensorPosition.FRONT), Sensor(self, 60.0, False, SensorPosition.TOP)]
+        self.controller = Controller(self,model)
+        self.sensors = [Sensor(self, 50.0, False, SensorPosition.FRONT), Sensor(self, 50.0, False, SensorPosition.TOP)]
         self.position = [x, y, z]
+        # print(f"Drone {self.drone_id} created at position: {self.position}")
         # self.orientation = [roll, pitch, yaw]
 
         p.resetBasePositionAndOrientation(self.drone_id, [x, y, 2], orientation)

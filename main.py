@@ -4,6 +4,7 @@ import time
 import pybullet_data
 from drone.drone import Drone
 import sys
+import random
 import ast
 
 import numpy as np
@@ -58,14 +59,36 @@ class Main:
         # out of bounds flag
         self.out_of_bounds = False 
 
-    def main(self):
-        if len(sys.argv) < 4:
-            print("\nPlease run python main.py <num_drones> <sim_length> <log_length>, where sim_length >= log_length\n")
-            sys.exit()
+        self.drones: list[Drone] = []
+        self.model = [3, 2, 0, -3, 2, 0, 3, 2, 0, -3, 2, 0]  # Default model values
 
-        if self.sim_length < self.log_length:
-            print("\nPlease ensure sim_length is greater than log_length\n")
-            sys.exit()
+    
+    def set_model(self,model):
+        if not isinstance(model, list) or len(model) != 12:
+            raise ValueError("Model must be a list of 12 integers.")
+        self.model = model
+
+    def randomize_model(self, seen_models):
+        while True:
+            candidate = [
+                random.uniform(-6, 6) if i % 3 == 0 else random.uniform(-4, 4)
+                for i in range(12)
+            ]
+            key = tuple(candidate)
+            if key not in seen_models:
+                self.model = candidate
+                return key  
+            
+
+
+    def world_setup(self):
+        # if len(sys.argv) < 4:
+        #     print("\nPlease run python main.py <num_drones> <sim_length> <log_length>, where sim_length >= log_length\n")
+        #     sys.exit()
+
+        # if self.sim_length < self.log_length:
+        #     print("\nPlease ensure sim_length is greater than log_length\n")
+        #     sys.exit()
 
 
         # connect to physics server
@@ -87,68 +110,70 @@ class Main:
         # ground = p.loadURDF("plane.urdf")
 
         # create list of drones
-        drones: list[Drone] = []
+        
 
-        for _ in range(0, self.num_drones):
-            drones.append(Drone())
+        for i in range(0, self.num_drones):
+            self.drones.append(Drone(i,self.num_drones, self.model))
 
         # open csv before loop
-        with open("drone_positions.csv", "w", newline="") as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(["time_step", "drone_id", "x", "y", "z","controller"])
-
-            for step in range(self.sim_length + 1): # add 1 to make sure last time step position is recorded
-                for drone in drones:
-                    p.changeDynamics(drone.drone_id, -1, linearDamping=0.0, angularDamping=0.0)
-                    other_drones = [other for other in drones if other != drone]
-                    sensor_input = []
-                    for sensor in drone.sensors:
-                        sensor_input.append(sensor.detect(other_drones))
-                    capability_model = drone.controller.capability_model(sensor_input)
-                    drone.controller.apply_capability_model(capability_model)
-                    
-                    # check if drones are out of bounds
-                    x, y, z = drone.get_drone_position()[0]
-                    if abs(x) >= self.env_size or abs(y) >= self.env_size or abs(z) >= self.env_size:
-                        # print(f"Drone {drone.drone_id} out of bounds at step {step}: ({x}, {y}, {z})")
-                        # p.resetBasePositionAndOrientation(drone.drone_id, [0, 0, 2], [0, 0, 0, 1])
-                        self.out_of_bounds = True
-                    
-                    apply_upright_control(drone.drone_id)
-                    
-                    # check if roll and pitch are non-zero
-
-                    roll, pitch, yaw = p.getEulerFromQuaternion(p.getBasePositionAndOrientation(drone.drone_id)[1])
-                    if abs(roll) > 0.1 or abs(pitch) > 0.1:
-                        print(f"Drone {drone.drone_id} has non-zero roll/pitch at step {step}: roll={roll}, pitch={pitch}")
-                    
+        # with open("drone_positions.csv", "w", newline="") as csvfile:
+        #     writer = csv.writer(csvfile)
+        #     writer.writerow(["time_step", "drone_id", "x", "y", "z","controller"])
 
 
-                if self.out_of_bounds:
-                    print("\nDrone out of bounds!")
-                    break
+    def step(self):
+        # for step in range(self.sim_length + 1): # add 1 to make sure last time step position is recorded
+        for drone in self.drones:
+            p.changeDynamics(drone.drone_id, -1, linearDamping=0.0, angularDamping=0.0)
+            other_drones = [other for other in self.drones if other != drone]
+            sensor_input = []
+            for sensor in drone.sensors:
+                sensor_input.append(sensor.detect(other_drones))
+            capability_model = drone.controller.capability_model(sensor_input)
+            drone.controller.apply_capability_model(capability_model)
+            
+            # check if drones are out of bounds
+            x, y, z = drone.get_drone_position()[0]
+            if abs(x) >= self.env_size or abs(y) >= self.env_size or abs(z) >= self.env_size:
+                # print(f"Drone {drone.drone_id} out of bounds at step {step}: ({x}, {y}, {z})")
+                # p.resetBasePositionAndOrientation(drone.drone_id, [0, 0, 2], [0, 0, 0, 1])
+                self.out_of_bounds = True
+            
+            apply_upright_control(drone.drone_id)
+            
+            # check if roll and pitch are non-zero
+
+            roll, pitch, yaw = p.getEulerFromQuaternion(p.getBasePositionAndOrientation(drone.drone_id)[1])
+            if abs(roll) > 0.1 or abs(pitch) > 0.1:
+                print(f"Drone {drone.drone_id} has non-zero roll/pitch: roll={roll}, pitch={pitch}")
+            
 
 
-                # write positions for each drone for the last [log_length] seconds
-                if step >= (self.sim_length - self.log_length) and step % 120 == 0:
-                    for drone in drones:
-                        pos = drone.get_drone_position()[0]
-                        writer.writerow([step / 240., drone.drone_id] + list(pos) + [str(drone.controller.model)])
+            if self.out_of_bounds:
+                print("\nDrone out of bounds!")
+                break
 
-                p.stepSimulation()
 
-                if self.render_GUI:
-                    time.sleep(1./240.)
+        # write positions for each drone for the last [log_length] seconds
+        # if step >= (self.sim_length - self.log_length) and step % 120 == 0:
+        #     for drone in self.drones:
+        #         pos = drone.get_drone_position()[0]
+        #         writer.writerow([step / 240., drone.drone_id] + list(pos) + [str(drone.controller.model)])
 
-        print("\n")
-        print("Positions saved to drone_positions.csv\n")
+        p.stepSimulation()
 
-if __name__ == "__main__":
-    num_drones = int(sys.argv[1])
-    sim_length = int(sys.argv[2]) * 240
-    log_length = int(sys.argv[3]) * 240
-    render_GUI = True 
-    env_size = 10
+        if self.render_GUI:
+            time.sleep(1./240.)
 
-    main_instance = Main(num_drones, sim_length, log_length, render_GUI, env_size)
-    main_instance.main()
+    # print("\n")
+    # print("Positions saved to drone_positions.csv\n")
+
+# if __name__ == "__main__":
+#     num_drones = int(sys.argv[1])
+#     sim_length = int(sys.argv[2]) * 240
+#     log_length = int(sys.argv[3]) * 240
+#     render_GUI = True 
+#     env_size = 10
+
+#     main_instance = Main(num_drones, sim_length, log_length, render_GUI, env_size)
+#     main_instance.main()

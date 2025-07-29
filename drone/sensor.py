@@ -53,14 +53,15 @@ class Sensor:
         magnitude_target = np.linalg.norm(relative_target_vector)
 
         # check to make sure that drone is within range of the sensor
-        if magnitude_target < 2:
-            return False
+        # if magnitude_target < 1 and self.drone.drone_id == 1:
+        #     print(f"Target {target_pos} is too close to sensor at {self_pos}. Magnitude: {magnitude_target}")
+        #     return True
 
         dot_product = np.dot(relative_forward, relative_target_vector)
         theta = math.acos(dot_product / (magnitude_forward * magnitude_target))
 
         # if the calculated angle is less than half the fov, than the target is within the field of view
-        if theta < math.radians(self.fov / 2):
+        if theta < math.radians(self.fov / 2) and magnitude_target < 5:
             return True
         else:
             return False
