@@ -5,9 +5,10 @@ import pybullet_data
 from drone.drone import Drone
 import sys
 import random
+import numpy as np
 
 class Main:
-    def __init__(self, num_drones = 8, sim_length = 20, log_length = 10, render_GUI = False, env_size = 5.):
+    def __init__(self, num_drones = 8, sim_length = 20, log_length = 10, render_GUI = False, env_size = 5., sim_speed = 1.0):
         # simulation parameters
         self.num_drones = num_drones
         self.sim_length = sim_length
@@ -34,8 +35,12 @@ class Main:
         # create list of drones
         drones: list[Drone] = []
 
-        for _ in range(0, self.num_drones):
-            drones.append(Drone([self.env_size * random.uniform(-1, 1) for _ in range(3)]))
+        axis_nodes = int(np.ceil(self.num_drones ** (1/3))) + 1
+        lattice_pos = self.generate_lattice(axis_nodes)
+
+        for i in range(0, self.num_drones):
+            position = lattice_pos[i]
+            drones.append(Drone(position))
 
         # open csv before loop
         with open("drone_positions.csv", "w", newline="") as csvfile:
@@ -51,6 +56,7 @@ class Main:
                         sensor_input.append(sensor.detect(other_drones))
                     capability_model = drone.controller.capability_model(sensor_input)
                     drone.controller.apply_capability_model(capability_model)
+            
 
                 self.check_collision(drones)
 
@@ -115,9 +121,28 @@ class Main:
             if contact_points:
                 drone.out_of_bounds = True
 
+    def generate_lattice(self, axis_nodes):
+        positions = []
+
+        axis_range = self.env_size
+        spacing = axis_range / (axis_nodes - 1)
+
+        for i in range(axis_nodes):
+            for j in range(axis_nodes):
+                for k in range(axis_nodes):
+                    x = -self.env_size/2 + i * spacing
+                    y = -self.env_size/2 + j * spacing
+                    z = -self.env_size/2 + k * spacing
+                    positions.append([x, y, z])
+
+        print(positions)
+        random.shuffle(positions)
+
+        return positions
+
 if __name__ == "__main__":
     if len(sys.argv) < 6:
-            print("\nPlease run python main.py <num_drones> <sim_length> <log_length> <sim_speed> <render_GUI (True/False)>, where sim_length >= log_length\n")
+            print("\nPlease run python main.py <num_drones> <sim_length> <log_length> <sim_speed> <render_GUI (T/False)>, where sim_length >= log_length\n")
             sys.exit()
 
     num_drones = int(sys.argv[1])
@@ -132,5 +157,5 @@ if __name__ == "__main__":
         sys.exit()
 
 
-    main_instance = Main(num_drones, sim_length, log_length, render_GUI, env_size)
+    main_instance = Main(num_drones, sim_length, log_length, render_GUI, env_size, sim_speed)
     main_instance.main()

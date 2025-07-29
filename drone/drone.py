@@ -10,6 +10,7 @@ class Drone:
     # constructor
     def __init__(self, pos):
         """ generate random values for position, color, and orientation """
+
         x, y, z = pos
         r, g, b = [random.random() for _ in range(3)]
         roll, pitch, yaw = [random.uniform(0, 2 * math.pi) for _ in range(3)]
@@ -27,7 +28,8 @@ class Drone:
         self.out_of_bounds = False
         # self.orientation = [roll, pitch, yaw]
 
-        p.resetBasePositionAndOrientation(self.drone_id, [x, y, 2], orientation)
+        p.resetBasePositionAndOrientation(self.drone_id, [x, y, z], orientation)
+        
 
     # create and load point mass
     def create_drone(self, position, color):
