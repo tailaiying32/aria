@@ -35,8 +35,8 @@ class Main:
         # create list of drones
         drones: list[Drone] = []
 
-        axis_nodes = int(np.ceil(self.num_drones ** (1/3))) + 1
-        lattice_pos = self.generate_lattice(axis_nodes)
+        
+        lattice_pos = self.generate_lattice()
 
         for i in range(0, self.num_drones):
             position = lattice_pos[i]
@@ -121,8 +121,9 @@ class Main:
             if contact_points:
                 drone.out_of_bounds = True
 
-    def generate_lattice(self, axis_nodes):
+    def generate_lattice(self):
         positions = []
+        axis_nodes = int(np.ceil(self.num_drones ** (1/3))) + 1
 
         axis_range = self.env_size
         spacing = axis_range / (axis_nodes - 1)
