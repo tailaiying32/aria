@@ -1,5 +1,12 @@
 {
-  "python-envs.defaultEnvManager": "ms-python.python:conda",
-  "python-envs.defaultPackageManager": "ms-python.python:conda",
-  "python-envs.pythonProjects": []
+  "python-envs.defaultEnvManager": "ms-python.python:mamba",
+  "python-envs.defaultPackageManager": "ms-python.python:mamba",
+  "python-envs.pythonProjects": [],
+  "terminal.integrated.profiles.windows": {
+    "Mamba (bullet)": {
+      "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "args": ["-NoExit", "-Command", "mamba activate bullet"]
+    }
+  },
+  "terminal.integrated.defaultProfile.windows": "Mamba (bullet)"
 }

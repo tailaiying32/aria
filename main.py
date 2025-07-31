@@ -143,7 +143,7 @@ class Main:
 
 if __name__ == "__main__":
     if len(sys.argv) < 6:
-            print("\nPlease run python main.py <num_drones> <sim_length> <log_length> <sim_speed> <render_GUI (T/False)>, where sim_length >= log_length\n")
+            print("\nPlease run python main.py <num_drones> <sim_length> <log_length> <sim_speed> <render_GUI (T/F)>, where sim_length >= log_length\n")
             sys.exit()
 
     num_drones = int(sys.argv[1])

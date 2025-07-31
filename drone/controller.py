@@ -21,19 +21,6 @@ class Controller:
     
     # capability model - start with randomized values
     def capability_model(self, sensor_input):
-        # roll, pitch, yaw = p.getEulerFromQuaternion(p.getBasePositionAndOrientation(self.drone.drone_id)[1])
-        # if sensor_input is True:
-        #     droll = -0 * self.dt
-        #     dpitch = -0 * self.dt
-        #     dyaw = 0 * self.dt
-        #     speed = 3
-        # else:
-        #     droll = 4 * self.dt
-        #     dpitch = 6 * self.dt
-        #     dyaw = 8 * self.dt
-        #     speed = 0
-        # return [droll, dpitch, dyaw, speed]
-
         # controller model based on two sensor states and yaw, forward velocity, and vertical velocity
         if sensor_input == [0, 0]:
             dyaw = self.model[0]
