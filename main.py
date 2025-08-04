@@ -2,7 +2,7 @@ import csv
 import pybullet as p
 import time
 import pybullet_data
-from drone.drone import Drone
+from aria.drone.drone import Drone
 import sys
 import random
 import ast

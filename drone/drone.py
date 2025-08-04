@@ -1,10 +1,10 @@
 import pybullet as p
-from drone.controller import Controller
-from drone.sensor import Sensor
+from aria.drone.controller import Controller
+from aria.drone.sensor import Sensor
 import numpy as np
 import random
 import math
-from drone.controller import SensorPosition
+from aria.drone.controller import SensorPosition
 def generate_grid_positions(num_drones, env_size):
     # Compute smallest cube grid that fits all drones
     num_per_axis = int(np.ceil(num_drones ** (1/3)))  # cube root rounded up

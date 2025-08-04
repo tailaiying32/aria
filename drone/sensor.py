@@ -1,7 +1,7 @@
 import math 
 import numpy as np
 import pybullet as p
-from drone.controller import SensorPosition
+from aria.drone.controller import SensorPosition
 
 # we leverage this rule - cos(theta) = (a dot b)/(||a|| x ||b||)
 
