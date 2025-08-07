@@ -17,7 +17,7 @@ class Controller:
     def __init__(self, drone):
         self.drone = drone
         self.dt = 240./240.
-        self.model = [3, 3, 0, -3, 3, 3, 3, 3, -0, -3, 3, 3]
+        self.model = [3, 3, 0, -3, -3, 3, -3, 3, -0, -3, 3, 3]
     
     # capability model - start with randomized values
     def capability_model(self, sensor_input):

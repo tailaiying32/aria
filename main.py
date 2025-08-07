@@ -6,6 +6,7 @@ from drone.drone import Drone
 import sys
 import random
 import numpy as np
+from typing import List
 
 class Main:
     def __init__(self, num_drones = 8, sim_length = 20, log_length = 10, render_GUI = False, env_size = 5., sim_speed = 1.0):
@@ -24,7 +25,7 @@ class Main:
         p.configureDebugVisualizer(p.COV_ENABLE_MOUSE_PICKING, 1)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.setGravity(0,0,0)
-        self.create_walls()
+        # self.create_walls()
         p.resetDebugVisualizerCamera(
             cameraDistance=8.0,
             cameraYaw=45,
@@ -58,7 +59,8 @@ class Main:
                     drone.controller.apply_capability_model(capability_model)
             
 
-                self.check_collision(drones)
+                # self.check_collision(drones)
+                self.check_out_of_bounds(drones)
 
                 # write positions for each drone for the last [log_length] seconds
                 if step >= (self.sim_length - self.log_length) and step % 120 == 0:
@@ -120,6 +122,11 @@ class Main:
             contact_points = p.getContactPoints(bodyA=drone.drone_id)
             if contact_points:
                 drone.out_of_bounds = True
+
+    def check_out_of_bounds(self, drones: list[Drone]):
+        for drone in drones:
+            for c in drone.get_drone_position()[0]:
+                drone.out_of_bounds = True if abs(c) > self.env_size else False
 
     def generate_lattice(self):
         positions = []
